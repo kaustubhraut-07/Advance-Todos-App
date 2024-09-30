@@ -7,5 +7,4 @@ urlpatterns = [
     path('createTododo/<int:id>/' ,createTodo , name='createTodo'),
     path('updatetodo/<int:id>/' ,updateTodo , name='updateTodo'),
     path('deletetodo/<int:id>/' ,deleteTodo , name='deleteTodo'),
-
 ]

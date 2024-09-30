@@ -50,3 +50,18 @@ def update_user(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+def delete_user(request):
+    username = request.data.get('username')
+    if not username:
+        return Response({"error": "Username is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = CustomUser.objects.get(username=username)
+    except CustomUser.DoesNotExist:
+        return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    user.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
