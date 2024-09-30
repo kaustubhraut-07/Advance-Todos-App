@@ -48,7 +48,6 @@ def updateTodo(request ,id):
 
 @api_view(['DELETE'])
 def deleteTodo(request , id):
-    # todoId = request.param.get('id')
     todo = Todo.objects.get(id=id)
     print(todo , "todo that we are deleteing")
     todo.delete()
