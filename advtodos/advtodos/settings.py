@@ -69,6 +69,8 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('GOOGLE_AUTH_SECREAT')
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
 ]
+CORS_ALLOW_CREDENTIALS = True
+
 
 ROOT_URLCONF = 'advtodos.urls'
 
