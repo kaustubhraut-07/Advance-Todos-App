@@ -48,8 +48,8 @@ def updateTodo(request ,email):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['DELETE'])
-def deleteTodo(request , email):
-    todo = Todo.objects.get(email=email)
+def deleteTodo(request , id):
+    todo = Todo.objects.get(id = id)
     print(todo , "todo that we are deleteing")
     todo.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)

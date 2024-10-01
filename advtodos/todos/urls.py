@@ -6,5 +6,5 @@ urlpatterns = [
     path('getalltodosbyuseremail/<str:email>/', getallTodosforUser , name='getallTodosforUser'),
     path('createTododo/<str:email>/' ,createTodo , name='createTodo'),
     path('updatetodo/<str:email>/' ,updateTodo , name='updateTodo'),
-    path('deletetodo/<str:email>/' ,deleteTodo , name='deleteTodo'),
+    path('deletetodo/<int:id>/' ,deleteTodo , name='deleteTodo'),
 ]
