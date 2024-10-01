@@ -4,8 +4,12 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate
-
+from google.oauth2 import id_token
+from google.auth.transport import requests
+from django.conf import settings
 from .models import CustomUser
+from rest_framework import status, request
+
 # Create your views here.
 # @api_view(['POST'])
 # def register(request):
@@ -43,14 +47,14 @@ def register(request):
 @api_view(['POST'])
 def login(request):
     if request.method == 'POST':
-        username = str(request.data.get('username'))
+        email = str(request.data.get('email'))
         password = str(request.data.get('password'))
-        print(f"Received username: {username}, password: {password}")
+        print(f"Received username: {email}, password: {password}")
 
-        if not username or not password:
+        if not email or not password:
             return Response({"error": "Username and password are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = authenticate(username= username , password=password)
+        user = authenticate(email= email , password=password)
         print(f"Authenticated user: {user}")
 
         if user is not None:
@@ -61,12 +65,12 @@ def login(request):
 
 @api_view(['PUT'])
 def update_user(request):
-    username = request.data.get('username')
-    if not username:
+    email = request.data.get('email')
+    if not email:
         return Response({"error": "Username is required."}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        user = CustomUser.objects.get(username=username)
+        user = CustomUser.objects.get(email=email)
     except CustomUser.DoesNotExist:
         return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -79,14 +83,53 @@ def update_user(request):
 
 @api_view(['DELETE'])
 def delete_user(request):
-    username = request.data.get('username')
-    if not username:
+    email = request.data.get('email')
+    if not email:
         return Response({"error": "Username is required."}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        user = CustomUser.objects.get(username=username)
+        user = CustomUser.objects.get(email=email)
     except CustomUser.DoesNotExist:
         return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
     user.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+@api_view(['POST'])
+def google_login(request):
+    token = request.data.get('token')
+    if not token:
+        return Response({"error": "Token is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Verify the token using Google's OAuth2 API
+        idinfo = id_token.verify_oauth2_token(token, requests.Request(), settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY)
+
+        # Get additional data from the token
+        email = idinfo.get('email')
+        name = idinfo.get('name')
+        oauth_id = idinfo.get('sub')  # Google's unique ID for the user
+        avatar = idinfo.get('picture')
+
+      
+        user, created = CustomUser.objects.get_or_create(email=email, defaults={
+            'email': email,
+            'name': name,
+            'oauth_id': oauth_id,
+            'avatar': avatar,
+            'provider': 'google'
+        })
+
+        if created:
+            user.set_unusable_password() 
+            user.save()
+
+      
+        serializer = CustomUserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except ValueError:
+        return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
