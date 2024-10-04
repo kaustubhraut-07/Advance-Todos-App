@@ -35,11 +35,11 @@ def createTodo(request,email):
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['PUT'])
-def updateTodo(request ,email):
+def updateTodo(request ,id):
     title = request.data.get('title')
     description = request.data.get('description')
     completed = request.data.get('completed')
-    todo = Todo.objects.get(email=email)
+    todo = Todo.objects.get(id=id)
     todo.title = title
     todo.description = description
     todo.completed = completed
