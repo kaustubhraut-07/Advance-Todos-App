@@ -131,5 +131,10 @@ def google_login(request):
         serializer = CustomUserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    except ValueError:
+    except ValueError as e:
+        print(f"Token verification failed: {e}")
         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return Response({"error": "An error occurred"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
