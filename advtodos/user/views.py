@@ -98,6 +98,48 @@ def delete_user(request):
 
 
 
+# @api_view(['POST'])
+# def google_login(request):
+#     token = request.data.get('token')
+#     if not token:
+#         return Response({"error": "Token is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+#     try:
+#         # Verify the token using Google's OAuth2 API
+#         idinfo = id_token.verify_oauth2_token(token, requests.Request(), settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY)
+
+#         # Get additional data from the token
+#         email = idinfo.get('email')
+#         name = idinfo.get('name')
+#         oauth_id = idinfo.get('sub')  # Google's unique ID for the user
+#         avatar = idinfo.get('picture')
+
+      
+#         user, created = CustomUser.objects.get_or_create(email=email, defaults={
+#             'email': email,
+#             'name': name,
+#             'oauth_id': oauth_id,
+#             'avatar': avatar,
+#             'provider': 'google'
+#         })
+
+#         if created:
+#             user.set_unusable_password() 
+#             user.save()
+
+      
+#         serializer = CustomUserSerializer(user)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+
+#     except ValueError as e:
+#         print(f"Token verification failed: {e}")
+#         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+#     except Exception as e:
+#         print(f"An error occurred: {e}")
+#         return Response({"error": "An error occurred"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(['POST'])
 def google_login(request):
     token = request.data.get('token')
@@ -114,9 +156,7 @@ def google_login(request):
         oauth_id = idinfo.get('sub')  # Google's unique ID for the user
         avatar = idinfo.get('picture')
 
-      
         user, created = CustomUser.objects.get_or_create(email=email, defaults={
-            'email': email,
             'name': name,
             'oauth_id': oauth_id,
             'avatar': avatar,
@@ -124,10 +164,9 @@ def google_login(request):
         })
 
         if created:
-            user.set_unusable_password() 
+            user.set_unusable_password()
             user.save()
 
-      
         serializer = CustomUserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
